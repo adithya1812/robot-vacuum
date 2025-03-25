@@ -2,6 +2,7 @@ class Robot {
   constructor(x, y) {
     this.x = x;
     this.y = y;
+    this.dir = createVector(1, 0);
   }
 
   update() {
@@ -21,52 +22,77 @@ class Robot {
       restart.style.left = width / 2 - 100 + "px";
       restart.style.top = height / 2 + 25 + "px";
     }
-    //if (millis() == round(millis())) {
     this.actX = this.x * gridSize;
     this.actY = this.y * gridSize;
     this.markCleaned();
-    let nearestSpot = this.findNearestUncleanedSpot();
-    if (nearestSpot != undefined) {
-      this.setPath(nearestSpot); // Store path instead of teleporting
-    }
-    // }
-    if (this.path && this.path.length > 0) {
-      this.moveToNextSpot(); // Move step by step
+    let newX = this.x + this.dir.x;
+    let newY = this.y + this.dir.y;
+    if (surrounded) {
+      let nearestSpot = this.findNearestUncleanedSpot();
+      if (nearestSpot != undefined) {
+        this.setPath(nearestSpot); // Store path instead of teleporting
+        if (this.path && this.path.length > 0) {
+          this.moveToNextSpot(); // Move step by step
+        }
+      }
+    } else if (!isCleaned(newX, newY) && isFree(newX, newY)) {
+      this.x = newX;
+      this.y = newY;
+      this.markCleaned();
+    } else {
+      this.findNewDirection();
     }
     visitedStack.push(createVector(this.x, this.y));
   }
 
-  // Find the nearest uncleaned spot
-  findNearestUncleanedSpot() {
-  let minDistance = Infinity;
-  let nearestSpot = null;
-  let rdist;
-
-  for (let i = 0; i < cols; i++) {
-    for (let j = 0; j < rows; j++) {
-      if (!isCleaned(i, j) && isFree(i, j)) {
-        let spot = createVector(i, j);
-        if (unreachable.some((u) => u.x === spot.x && u.y === spot.y)) {
-          continue; // Skip unreachable spots
-        }
-
-        // Check if a valid path exists before selecting the spot
-        let testPath = this.findPathToSpot(spot);
-        if (!testPath || testPath.length === 0) {
-          continue; // Skip if there's no valid path
-        }
-
-        rdist = dist(this.x, this.y, i, j);
-        if (rdist < minDistance) {
-          minDistance = rdist;
-          nearestSpot = spot;
-        }
+  findNewDirection() {
+    let directions = [
+      createVector(1, 0),
+      createVector(-1, 0),
+      createVector(0, 1),
+      createVector(0, -1),
+    ];
+    shuffle(directions, true);
+    for (let dir of directions) {
+      let newX = this.x + dir.x;
+      let newY = this.y + dir.y;
+      if (!isCleaned(newX, newY) && isFree(newX, newY)) {
+        this.dir = dir;
+        return;
       }
     }
   }
-  return nearestSpot;
-}
 
+  // Find the nearest uncleaned spot
+  findNearestUncleanedSpot() {
+    let minDistance = Infinity;
+    let nearestSpot = null;
+    let rdist;
+
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        if (!isCleaned(i, j) && isFree(i, j)) {
+          let spot = createVector(i, j);
+          if (unreachable.some((u) => u.x === spot.x && u.y === spot.y)) {
+            continue; // Skip unreachable spots
+          }
+
+          // Check if a valid path exists before selecting the spot
+          let testPath = this.findPathToSpot(spot);
+          if (!testPath || testPath.length === 0) {
+            continue; // Skip if there's no valid path
+          }
+
+          rdist = dist(this.x, this.y, i, j);
+          if (rdist < minDistance) {
+            minDistance = rdist;
+            nearestSpot = spot;
+          }
+        }
+      }
+    }
+    return nearestSpot;
+  }
 
   // Find the path to the target spot
   findPathToSpot(targetSpot) {
