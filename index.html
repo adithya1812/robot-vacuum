@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.1/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.1/addons/p5.sound.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="utf-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Include custom fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+20+Charted&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <main>
+      <input id="speed" type="range" min="1" max="60" value="15" step="1">
+      <button id="start" class="button" onclick="startSim()">Start</button>
+      <button id="restart" class="button" onclick="restartSketch()">Restart</button> 
+    </main>
+    <script src="sketch.js"></script>
+    <script src="Node.js"></script>
+    <script src="Robot.js"></script>
+  </body>
+</html>
